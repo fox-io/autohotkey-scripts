@@ -5,8 +5,8 @@
 ; Dirty Processing using only the Numpad, rather than various keys and mouse input, 
 ; speeding up the process.
 ;
-; The coordinates provided are relative to a default, unmodified layout using 1920x1080
-; resolution in Windows 11.
+; The coordinates provided are relative to a default, unmodified layout, maximized
+; window, using 1920x1080 resolution resolution in Windows 11.
 ;
 ; Created using Hydrus Client v605.
 ; 
@@ -59,7 +59,7 @@ NumpadDot::
 	Sleep 450
 	Send "{Enter}"
 	Click 370, 450
-	Sleep 450
+	Sleep 1500
 	Send "{Numpad5}"
 }
 
@@ -70,7 +70,7 @@ Numpad3::
 	Sleep 450
 	Send "{Enter}"
 	Click 370, 450
-	Sleep 450
+	Sleep 1500
 	Send "{Numpad5}"
 }
 
