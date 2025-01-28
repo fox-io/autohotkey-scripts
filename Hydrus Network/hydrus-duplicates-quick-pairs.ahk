@@ -67,6 +67,8 @@ Numpad3::
 	Send "{Delete}"
 	Sleep 450
 	Send "{Enter}"
+	Click 370, 450
+	Sleep 450
 	Send "{Numpad5}"
 }
 
