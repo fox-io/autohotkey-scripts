@@ -1,5 +1,24 @@
 #Requires AutoHotkey v2.0
 
+; This script is used to enable Num Pad to be used in Hyrus Network in conjunction with
+; the Filtering tab of the Duplicates Processing page. This enables you do do Quick and
+; Dirty Processing using only the Num Pad, rather than various keys and mouse input, 
+; speeding up the process.
+;
+; The coordinates provided are relative to a default, unmodified layout using 1920x1080
+; resolution in Windows 11.
+;
+; Created using Hydrus Client v605.
+; 
+; Numpad 5 - "Show Some Random Potential Pairs"
+; Numpad 6 - "Set Current Media as Duplicates of the Same Quality"
+; Numpad 2 - "Set Current Media as Related Alternatives"
+; Numpad 0 - "Set Current Media as Not Related/False Positives"
+; Numpad . - Selects ALL current media and deletes them. Clicks refresh to update
+;            potential duplicate count. Clicks Numpad 5 to show next potential pairs.
+; Numpad 3 - Deletes SELECTED media, leaving the rest untouched.
+; Numpad 9 - Tags SELECTED media with "comic" tag. Nothing is deleted or refreshed.
+
 CoordMode "Mouse", "Screen"
 
 ;Show Pairs
