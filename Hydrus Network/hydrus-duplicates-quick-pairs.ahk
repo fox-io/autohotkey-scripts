@@ -23,10 +23,28 @@
 
 CoordMode "Mouse", "Screen"
 
+ShowRandomPairs() {
+	Click 214, 530
+}
+
+RefreshAndShowNextPairs() {
+	Click 370, 450
+	Sleep 1500
+	ShowRandomPairs()
+}
+
+ConfirmDeletionAndContinue() {
+	Sleep 450
+	Send "{Enter}"
+	RefreshAndShowNextPairs()
+}
+
+#HotIf WinActive("ahk_exe hydrus_client.exe")
+
 ;Show Pairs
 Numpad5::
 {
-	Click 214, 530
+	ShowRandomPairs()
 }
 
 ;= Duplicates of SAME quality
@@ -56,22 +74,14 @@ NumpadDot::
 {
 	Click 444, 83
 	Send "^{a}{Delete}"
-	Sleep 450
-	Send "{Enter}"
-	Click 370, 450
-	Sleep 1500
-	Send "{Numpad5}"
+	ConfirmDeletionAndContinue()
 }
 
 ;= Delete SELECTED
 Numpad3::
 {
 	Send "{Delete}"
-	Sleep 450
-	Send "{Enter}"
-	Click 370, 450
-	Sleep 1500
-	Send "{Numpad5}"
+	ConfirmDeletionAndContinue()
 }
 
 ; Mark SELECTED as COMICS
@@ -97,3 +107,5 @@ Numpad9::
 	; Click "Accept"
 	Click 605, 983
 }
+
+#HotIf
