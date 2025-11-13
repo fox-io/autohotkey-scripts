@@ -23,23 +23,97 @@
 
 CoordMode "Mouse", "Screen"
 
+HYDRUS_WINDOW := "ahk_exe hydrus_client.exe"
+DEFAULT_MODAL_TIMEOUT := 2000
+DEFAULT_REFRESH_TIMEOUT := 5000
+
 ShowRandomPairs() {
 	Click 214, 530
 }
 
 RefreshAndShowNextPairs() {
 	Click 370, 450
-	Sleep 1500
+	WaitForHydrusIdle()
 	ShowRandomPairs()
 }
 
 ConfirmDeletionAndContinue() {
-	Sleep 450
-	Send "{Enter}"
+	AcceptHydrusModal()
 	RefreshAndShowNextPairs()
 }
 
-#HotIf WinActive("ahk_exe hydrus_client.exe")
+WaitForHydrusEnabled(desired := true, timeout := DEFAULT_MODAL_TIMEOUT) {
+	global HYDRUS_WINDOW
+	start := A_TickCount
+	while (A_TickCount - start) <= timeout {
+		try
+		{
+			isEnabled := WinGetEnabled(HYDRUS_WINDOW)
+		}
+		catch
+		{
+			return false
+		}
+		if (!!isEnabled = desired)
+			return true
+		Sleep 25
+	}
+	return false
+}
+
+WaitForHydrusModalOpen(timeout := DEFAULT_MODAL_TIMEOUT) {
+	global HYDRUS_WINDOW
+	if !WaitForHydrusEnabled(false, timeout)
+		return ""
+	dialogId := WinExist("A")
+	mainId := WinExist(HYDRUS_WINDOW)
+	return (dialogId && dialogId != mainId) ? dialogId : ""
+}
+
+AcceptHydrusModal(timeout := DEFAULT_MODAL_TIMEOUT) {
+	if !(dialogId := WaitForHydrusModalOpen(timeout))
+		return false
+	dialogRef := "ahk_id " dialogId
+	ControlSend "{Enter}", , dialogRef
+	WinWaitClose dialogRef, , timeout / 1000
+	WaitForHydrusEnabled(true, timeout)
+	return true
+}
+
+IsBusyCursor() {
+	static busy := Map("Wait", true, "AppStarting", true)
+	return busy.Has(A_Cursor)
+}
+
+WaitForHydrusIdle(timeout := DEFAULT_REFRESH_TIMEOUT) {
+	start := A_TickCount
+	while (A_TickCount - start) <= timeout {
+		if !IsBusyCursor()
+			return true
+		Sleep 50
+	}
+	return false
+}
+
+WaitForContextMenu(expectedCount := 1, timeout := 700) {
+	start := A_TickCount
+	while (A_TickCount - start) <= timeout {
+		try
+		{
+			menuHandles := WinGetList("ahk_class #32768")
+		}
+		catch
+		{
+			menuHandles := []
+		}
+		if menuHandles.Length >= expectedCount
+			return true
+		Sleep 20
+	}
+	return false
+}
+
+#HotIf WinActive(HYDRUS_WINDOW)
 
 ;Show Pairs
 Numpad5::
@@ -57,16 +131,14 @@ Numpad6::
 Numpad2::
 {
 	Click 214, 526
-	Sleep 450
-	Send "{Enter}"
+	AcceptHydrusModal()
 }
 
 ;= False Positives
 Numpad0::
 {
 	Click 214, 546
-	Sleep 450
-	Send "{Enter}"
+	AcceptHydrusModal()
 }
 
 ;= Delete ALL
@@ -89,23 +161,26 @@ Numpad9::
 {
 	; Open Right Click Menu
 	Click(447, 72, "Right")
-	Sleep 450
+	if !WaitForContextMenu()
+		return
 	; Move cursor to "Manage" and wait for submenu
 	MouseMove 547, 250
-	Sleep 450
+	WaitForContextMenu(2)
 	; Click "Tags"
 	Click 622, 252
-	Sleep 450
+	if !(tagsDialog := WaitForHydrusModalOpen())
+		return
+	tagsDialogRef := "ahk_id " tagsDialog
+	WinActivate tagsDialogRef
 	; Click tag entry box
 	Click 419, 717
-	Sleep 450
 	; Type "meta:comic"
 	Send "meta:comic"
-	Sleep 450
 	Send "{Enter}"
-	Sleep 450
 	; Click "Accept"
 	Click 605, 983
+	WinWaitClose tagsDialogRef, , DEFAULT_MODAL_TIMEOUT / 1000
+	WaitForHydrusEnabled(true)
 }
 
 #HotIf
